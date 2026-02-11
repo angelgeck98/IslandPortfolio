@@ -1,4 +1,4 @@
-echo "node_modules/
+node_modules/
 .parcel-cache/
 dist/
-.env" > .gitignore
+.env

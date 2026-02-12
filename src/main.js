@@ -12,7 +12,30 @@ const circleURL = new URL('../public/Meshes/TopOfSphere.glb?url', import.meta.ur
 const WaterFallURL = new URL('../public/Meshes/WaterFalls.glb?url', import.meta.url)
 
 //Materials 
-const m1 = new THREE.MeshBasicMaterial({color: 0x429C6})
+const m1 = new THREE.MeshBasicMaterial({color: 0x4566})
+
+//Shaders 
+
+const m2 = new THREE.ShaderMaterial({
+     wireframe: false,
+        
+       vertexShader: `
+       void main()	{
+         vec4 result;
+         result = vec4(position.x, position.y, position.z, 1.0);
+         gl_Position = projectionMatrix
+           * modelViewMatrix
+           * result;
+       }
+       `,
+       fragmentShader: `
+       // varying vec3 pos;
+       void main() {
+         gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+       }
+       `,
+     });
+
 
 const renderer = new  THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight)
@@ -34,12 +57,12 @@ controls.update();
 
 
 //Grid
-const gridHelper = new THREE.GridHelper(50, 50);
-scene.add(gridHelper);
+//const gridHelper = new THREE.GridHelper(50, 50);
+//scene.add(gridHelper);
 
 //Axes 
-const axesHelper = new THREE.AxesHelper(5);
-scene.add(axesHelper);
+//const axesHelper = new THREE.AxesHelper(5);
+//scene.add(axesHelper);
 
 //Asset Loader 
 const assetLoader = new GLTFLoader();
@@ -47,7 +70,7 @@ const assetLoader = new GLTFLoader();
 //use the helper funciton instead! 
 loadModel(assetLoader, monkeyUrl.href, {x: 0, y: 5, z: 0}, {x:5, y: 5, z: 5}, m1, scene);
 loadModel(assetLoader, circleURL.href, {x: 0, y: 4.8, z: 0}, {x:5, y: 5, z: 5}, m1, scene);
-loadModel(assetLoader, WaterFallURL.href, {x: 0, y: 4.8, z: 0}, {x:5, y: 5, z: 5}, m1, scene);
+loadModel(assetLoader, WaterFallURL.href, {x: 0, y: 4.8, z: 0}, {x:5, y: 5, z: 5}, m2, scene);
 
 
 //animate function for time to pass

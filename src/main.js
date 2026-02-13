@@ -4,12 +4,16 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { loadModel} from './helpers.js';
 
 //Shaders
-import vertexShader from './Shaders/vertex.glsl'
-import fragmentShader from './Shaders/fragment.glsl'
+import vertexShader from './Shaders/Waterfall/vertex.glsl'
+import fragmentShader from './Shaders/Waterfall/fragment.glsl'
 
 const m2 = new THREE.ShaderMaterial({
   vertexShader: vertexShader, 
-  fragmentShader: fragmentShader
+  fragmentShader: fragmentShader,
+  uniforms: {
+    screenWidth: { value: 800.0}
+  }, 
+  side: THREE.DoubleSide
 })
 
 

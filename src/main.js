@@ -7,13 +7,19 @@ import { loadModel} from './helpers.js';
 import vertexShader from './Shaders/Waterfall/vertex.glsl'
 import fragmentShader from './Shaders/Waterfall/fragment.glsl'
 
+//Images
+import noiseTexture from '../public/Materials/Perlin7.png'
+
 const m2 = new THREE.ShaderMaterial({
+  wireframe: false,
+  side: THREE.DoubleSide,
+  uniforms: {
+    uTexture: { value: new THREE.TextureLoader().load('/Materials/Perlin7.png') },
+    uTime: {value: 0.0}
+  },
   vertexShader: vertexShader, 
   fragmentShader: fragmentShader,
-  uniforms: {
-    screenWidth: { value: 800.0}
-  }, 
-  side: THREE.DoubleSide
+
 })
 
 
@@ -23,11 +29,14 @@ const monkeyUrl = new URL('../public/Meshes/HalfSphere.glb?url', import.meta.url
 //Importing top circle 
 const circleURL = new URL('../public/Meshes/TopOfSphere.glb?url', import.meta.url)
 //Waterfalls
-const WaterFallURL = new URL('../public/Meshes/WaterFalls.glb?url', import.meta.url)
+//const WaterFallURL = new URL('../public/Meshes/WaterFalls.glb?url', import.meta.url)
+const geometry = new THREE.PlaneGeometry(6, 25);
+const plane = new THREE.Mesh(geometry, m2);
+plane.position.set(0, -7.5, 24.5);
+
 
 //Materials 
 const m1 = new THREE.MeshBasicMaterial({color: 0x4566})
-
 
 
 const renderer = new  THREE.WebGLRenderer();
@@ -50,8 +59,8 @@ controls.update();
 
 
 //Grid
-//const gridHelper = new THREE.GridHelper(50, 50);
-//scene.add(gridHelper);
+const gridHelper = new THREE.GridHelper(50, 50);
+scene.add(gridHelper);
 
 //Axes 
 const axesHelper = new THREE.AxesHelper(50);
@@ -63,7 +72,9 @@ const assetLoader = new GLTFLoader();
 //use the helper funciton instead! 
 loadModel(assetLoader, monkeyUrl.href, {x: 0, y: 5, z: 0}, {x:5, y: 5, z: 5}, m1, scene);
 loadModel(assetLoader, circleURL.href, {x: 0, y: 4.8, z: 0}, {x:5, y: 5, z: 5}, m1, scene);
-loadModel(assetLoader, WaterFallURL.href, {x: 0, y: 4.8, z: 0}, {x:5.01, y: 5, z: 5}, m2, scene);
+//loadModel(assetLoader, WaterFallURL.href, {x: 0, y: 4.8, z: 0}, {x:5.01, y: 5, z: 5}, m2, scene);
+scene.add(plane);
+
 
 
 //animate function for time to pass

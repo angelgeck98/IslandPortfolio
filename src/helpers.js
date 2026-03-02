@@ -1,14 +1,32 @@
 import * as THREE from 'three';
 
-export function loadModel(assetLoader, url, position, scale, material, scene) {
+export function loadModel(
+    assetLoader, 
+    url, 
+    position, 
+    scale, 
+    material, 
+    scene, 
+    rotation = null  // Optional parameter with default value
+) {
     return new Promise((resolve, reject) => {
         assetLoader.load(
             url, 
             function(gltf) {
                 const model = gltf.scene;
-                model.position.set(position.x, position.y, position.z);
-                model.scale.set(scale.x, scale.y, scale.z)
                 
+                // Position
+                model.position.set(position.x, position.y, position.z);
+                
+                // Scale
+                model.scale.set(scale.x, scale.y, scale.z);
+                
+                // Rotation (optional)
+                if (rotation) {
+                    model.rotation.set(rotation.x, rotation.y, rotation.z);
+                }
+                
+                // Material
                 if (material) {
                     model.traverse((child) => {
                         if (child.isMesh) {

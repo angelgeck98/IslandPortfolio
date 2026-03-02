@@ -32,15 +32,20 @@ const waterfallMaterial = new THREE.ShaderMaterial({
 // ==================== MESH URLS ====================
 const monkeyUrl = new URL('../public/Meshes/HalfSphere.glb?url', import.meta.url);
 const circleURL = new URL('../public/Meshes/TopOfSphere.glb?url', import.meta.url);
+const waterURL = new URL('../public/Meshes/WaterFalls.glb?url', import.meta.url);
+const water1URL = new URL('../public/Meshes/WaterFalls1.glb?url', import.meta.url);
+
+
+
 
 
 // ==================== GEOMETRIES & MESHES ====================
 const waterfallGeometry = new THREE.PlaneGeometry(6, 25);
-const waterfall1 = new THREE.Mesh(waterfallGeometry, waterfallMaterial);
-const waterfall2 = new THREE.Mesh(waterfallGeometry, waterfallMaterial);
+//const waterfall1 = new THREE.Mesh(waterfallGeometry, waterfallMaterial);
+//const waterfall2 = new THREE.Mesh(waterfallGeometry, waterfallMaterial);
 
-waterfall1.position.set(0, -7.5, 24.5);
-waterfall2.position.set(0, -7.5, -24.5);
+//waterfall1.position.set(0, -7.5, 24.5);
+//waterfall2.position.set(0, -7.5, -24.5);
 
 
 // ==================== RENDERER SETUP ====================
@@ -82,7 +87,7 @@ loadModel(
     assetLoader, 
     monkeyUrl.href, 
     { x: 0, y: 4.7, z: 0 }, 
-    { x: 6, y: 6, z: 6 }, 
+    { x: 5.99, y: 6, z: 5.99 }, 
     terrainMaterial, 
     scene
 );
@@ -96,10 +101,50 @@ loadModel(
     scene
 );
 
+loadModel(
+    assetLoader, 
+    waterURL.href, 
+    { x: 0, y: 4.7, z: 0 }, 
+    { x: 6, y: 6, z: 6 }, 
+    waterfallMaterial, 
+    scene
+);
+
+loadModel(
+    assetLoader, 
+    water1URL.href, 
+    { x: 0, y: 4.7, z: 0.01 }, 
+    { x: 6, y: 6, z: 6 }, 
+    waterfallMaterial, 
+    scene
+);
+
+loadModel(
+    assetLoader, 
+    water1URL.href, 
+    { x: 0, y: 4.7, z: 0}, 
+    { x: 6, y: 8, z: 6 }, 
+    waterfallMaterial, 
+    scene,
+    {x: 0, y: Math.PI / 2, z: 0}
+);
+
+loadModel(
+    assetLoader, 
+    water1URL.href, 
+    { x: 0.01, y: 4.7, z: 0.01}, 
+    { x: 6, y: 8, z: 6 }, 
+    waterfallMaterial, 
+    scene,
+    {x: 0, y: - Math.PI / 2, z: 0}
+);
+
+
+
 
 // ==================== ADD MESHES TO SCENE ====================
-scene.add(waterfall1);
-scene.add(waterfall2);
+//scene.add(waterfall1);
+//scene.add(waterfall2);
 
 
 // ==================== ANIMATION LOOP ====================
@@ -107,7 +152,7 @@ function animate() {
     controls.update();
     
     // Update shader time
-    waterfallMaterial.uniforms.uTime.value -= 0.05;
+    waterfallMaterial.uniforms.uTime.value += 0.05;
     
     renderer.render(scene, camera);
 }

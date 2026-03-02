@@ -67,16 +67,41 @@ float snoise(vec3 v){
 }
 
 void main() {
-    // Animated waterfall noise
-    vec3 noiseCoord = vec3(vUv.x * 2.0, vUv.y * 5.0 - uTime * 0.5, 0.0);
-    float n = snoise(noiseCoord) * 0.5 + 0.5;
+      // Layer multiple noise scales for organic waves (Wind Waker style)
+    vec3 noiseCoord1 = vec3(vUv.x * 1.5, vUv.y * 3.0 - uTime * 0.15, 0.0);
+    vec3 noiseCoord2 = vec3(vUv.x * 3.0, vUv.y * 6.0 - uTime * 0.25, 1.0);
+    vec3 noiseCoord3 = vec3(vUv.x * 0.5, vUv.y * 1.5 - uTime * 0.05, 2.0);
     
-    // Water colors
-    vec3 waterColor = mix(
-        vec3(0.2, 0.5, 0.8),  // Light blue
-        vec3(0.9, 0.95, 1.0), // White foam
-        n
-    );
+    // Combine noise layers for depth
+    float n1 = snoise(noiseCoord1) * 0.5 + 0.5;
+    float n2 = snoise(noiseCoord2) * 0.3 + 0.5;
+    float n3 = snoise(noiseCoord3) * 0.2 + 0.5;
+    float n = (n1 * 0.6 + n2 * 0.3 + n3 * 0.1);
     
-    gl_FragColor = vec4(waterColor, 0.8);
+    // Wind Waker uses 3-4 distinct color bands
+    float bands = 4.0;
+    float toonNoise = floor(n * bands) / bands;
+    
+    // Wind Waker water palette (vibrant blues)
+    vec3 deepBlue = vec3(0.02, 0.25, 0.65);      // Darkest
+    vec3 oceanBlue = vec3(0.15, 0.45, 0.85);     // Mid dark
+    vec3 skyBlue = vec3(0.4, 0.7, 0.95);         // Mid light
+    vec3 foamWhite = vec3(0.85, 0.95, 1.0);      // Lightest/foam
+    
+    // Hard-edged color transitions (cel shading)
+    vec3 waterColor = deepBlue;
+    waterColor = mix(waterColor, oceanBlue, step(0.25, toonNoise));
+    waterColor = mix(waterColor, skyBlue, step(0.5, toonNoise));
+    waterColor = mix(waterColor, foamWhite, step(0.75, toonNoise));
+    
+    // Add sharp outlines between bands (Wind Waker signature look)
+    float edgeWidth = 0.02;
+    float edgeMask = fract(n * bands);
+    float outline = smoothstep(0.0, edgeWidth, edgeMask) * smoothstep(1.0, 1.0 - edgeWidth, edgeMask);
+    waterColor = mix(vec3(0.01, 0.15, 0.45), waterColor, outline); // Dark blue outlines
+    
+    // Slight brightness boost for that Wind Waker pop
+    waterColor *= 1.15;
+    
+    gl_FragColor = vec4(waterColor, 0.9);
 }

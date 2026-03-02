@@ -1,90 +1,115 @@
+// ==================== IMPORTS ====================
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { loadModel} from './helpers.js';
+import { loadModel } from './helpers.js';
 
-//Shaders
-import vertexShader from './Shaders/Waterfall/vertex.glsl'
-import fragmentShader from './Shaders/Waterfall/fragment.glsl'
+// Shaders
+import vertexShader from './Shaders/Waterfall/vertex.glsl';
+import fragmentShader from './Shaders/Waterfall/fragment.glsl';
 
-//Images
-import noiseTexture from '../public/Materials/Perlin7.png'
-
-const m2 = new THREE.ShaderMaterial({
-  wireframe: false,
-  side: THREE.DoubleSide,
-  uniforms: {
-    uTexture: { value: new THREE.TextureLoader().load('/Materials/Perlin7.png') },
-    uTime: {value: 0.0}
-  },
-  vertexShader: vertexShader, 
-  fragmentShader: fragmentShader,
-
-})
+// Images
+import noiseTexture from '../public/Materials/Perlin7.png';
 
 
-//Meshes
-//Importing Half Circle Mesh
-const monkeyUrl = new URL('../public/Meshes/HalfSphere.glb?url', import.meta.url)
-//Importing top circle 
-const circleURL = new URL('../public/Meshes/TopOfSphere.glb?url', import.meta.url)
-//Waterfalls
-//const WaterFallURL = new URL('../public/Meshes/WaterFalls.glb?url', import.meta.url)
-const geometry = new THREE.PlaneGeometry(6, 25);
-const plane = new THREE.Mesh(geometry, m2);
-plane.position.set(0, -7.5, 24.5);
+// ==================== MATERIALS ====================
+const terrainMaterial = new THREE.MeshBasicMaterial({ 
+    color: 0x4c3228 
+});
+
+const waterfallMaterial = new THREE.ShaderMaterial({
+    wireframe: false,
+    side: THREE.DoubleSide,
+    transparent: false,
+    uniforms: {
+        uTime: { value: 0.0 }
+    },
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
+});
 
 
-//Materials 
-const m1 = new THREE.MeshBasicMaterial({color: 0x4566})
+// ==================== MESH URLS ====================
+const monkeyUrl = new URL('../public/Meshes/HalfSphere.glb?url', import.meta.url);
+const circleURL = new URL('../public/Meshes/TopOfSphere.glb?url', import.meta.url);
 
 
-const renderer = new  THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight)
-document.body.appendChild(renderer.domElement)
+// ==================== GEOMETRIES & MESHES ====================
+const waterfallGeometry = new THREE.PlaneGeometry(6, 25);
+const waterfall1 = new THREE.Mesh(waterfallGeometry, waterfallMaterial);
+const waterfall2 = new THREE.Mesh(waterfallGeometry, waterfallMaterial);
 
-//setting background color for now
+waterfall1.position.set(0, -7.5, 24.5);
+waterfall2.position.set(0, -7.5, -24.5);
+
+
+// ==================== RENDERER SETUP ====================
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x89CFF0);
+document.body.appendChild(renderer.domElement);
 
-//initializing scene
-const scene  = new THREE.Scene(); 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-//Orbit Controls
-const controls = new OrbitControls(camera, renderer.domElement);
-
+// ==================== SCENE & CAMERA ====================
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(
+    75, 
+    window.innerWidth / window.innerHeight, 
+    0.1, 
+    1000
+);
 camera.position.set(0, 20, 50);
+
+
+// ==================== CONTROLS ====================
+const controls = new OrbitControls(camera, renderer.domElement);
 controls.update();
 
 
-
-//Grid
+// ==================== HELPERS (Debug) ====================
 const gridHelper = new THREE.GridHelper(50, 50);
-scene.add(gridHelper);
-
-//Axes 
 const axesHelper = new THREE.AxesHelper(50);
+scene.add(gridHelper);
 scene.add(axesHelper);
 
-//Asset Loader 
+
+// ==================== LOADERS ====================
 const assetLoader = new GLTFLoader();
 
-//use the helper funciton instead! 
-loadModel(assetLoader, monkeyUrl.href, {x: 0, y: 5, z: 0}, {x:5, y: 5, z: 5}, m1, scene);
-loadModel(assetLoader, circleURL.href, {x: 0, y: 4.8, z: 0}, {x:5, y: 5, z: 5}, m1, scene);
-//loadModel(assetLoader, WaterFallURL.href, {x: 0, y: 4.8, z: 0}, {x:5.01, y: 5, z: 5}, m2, scene);
-scene.add(plane);
+
+// ==================== LOAD MODELS ====================
+loadModel(
+    assetLoader, 
+    monkeyUrl.href, 
+    { x: 0, y: 4.7, z: 0 }, 
+    { x: 6, y: 6, z: 6 }, 
+    terrainMaterial, 
+    scene
+);
+
+loadModel(
+    assetLoader, 
+    circleURL.href, 
+    { x: 0, y: 4.7, z: 0 }, 
+    { x: 6, y: 6, z: 6 }, 
+    waterfallMaterial, 
+    scene
+);
 
 
+// ==================== ADD MESHES TO SCENE ====================
+scene.add(waterfall1);
+scene.add(waterfall2);
 
-//animate function for time to pass
-function animate(){
+
+// ==================== ANIMATION LOOP ====================
+function animate() {
     controls.update();
-
+    
+    // Update shader time
+    waterfallMaterial.uniforms.uTime.value -= 0.05;
+    
     renderer.render(scene, camera);
 }
 
-
-
-//setting animate
 renderer.setAnimationLoop(animate);
